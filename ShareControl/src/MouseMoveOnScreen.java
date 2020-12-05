@@ -96,21 +96,25 @@ public class MouseMoveOnScreen {
 						logger.log(Level.INFO, "Received: " + received);
 						String[] points = received.split(",");
 
-						if (points[0].equalsIgnoreCase("M")) {
-							Point p = MouseInfo.getPointerInfo().getLocation();
-							int x = p.x + parseInt(points[1].trim());
-							int y = p.y + parseInt(points[2].trim());
-							int pressed = parseInt(points[3]);
-							int released = parseInt(points[4]);
-							robot.mouseMove(x, y);
-							if (pressed >= 0) {
-								robot.mousePress(pressed);
-							}
-							if (released >= 0) {
-								robot.mouseRelease(released);
-							}
-						} else if (points[0].equalsIgnoreCase("K")) {
+						try {
+							if (points[0].equalsIgnoreCase("M")) {
+								Point p = MouseInfo.getPointerInfo().getLocation();
+								int x = p.x + parseInt(points[1].trim());
+								int y = p.y + parseInt(points[2].trim());
+								int pressed = parseInt(points[3].trim());
+								int released = parseInt(points[4].trim());
+								robot.mouseMove(x, y);
+								if (pressed >= 0) {
+									robot.mousePress(pressed);
+								}
+								if (released >= 0) {
+									robot.mouseRelease(released);
+								}
+							} else if (points[0].equalsIgnoreCase("K")) {
 
+							}
+						} catch (Exception e) {
+							// TODO: handle exception
 						}
 					}
 					socket.close();
@@ -134,7 +138,7 @@ public class MouseMoveOnScreen {
 
 	public void sendLatestMouseMovement() {
 		Point point = MouseInfo.getPointerInfo().getLocation();
-		String msg = String.format("M,%s,%s,%s,%s", point.x - 500, point.y - 500, pressed, released);
+		String msg = String.format("M,%s,%s,%s,%s,", point.x - 500, point.y - 500, pressed, released);
 
 		if (!msg.equals(lastMsg)) {
 			byte[] buf = msg.getBytes();
@@ -160,10 +164,8 @@ public class MouseMoveOnScreen {
 			public void run() {
 				JFrame f = new JFrame("Track Mouse On Screen");
 				f.addMouseListener(createMouseListener());
-				f.setBounds(100, 100, 100, 100);
+				f.setBounds(400, 400, 200, 200);
 				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				// f.pack();
-				f.setLocationByPlatform(true);
 				f.setVisible(true);
 			}
 
