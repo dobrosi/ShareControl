@@ -85,7 +85,9 @@ public class MouseMoveOnScreen {
 
 						System.out.println("received: " + received);
 						String[] points = received.split(",");
-						robot.mouseMove(parseInt(points[0]), parseInt(points[1]));
+						
+						robot.mouseMove(500 + parseInt(points[0].trim()), 500 + parseInt(points[1].trim()));
+						robot.mouseMove(500, 500);
 
 						if (received.equals("end")) {
 							running = false;
@@ -116,7 +118,7 @@ public class MouseMoveOnScreen {
 		if (lastPoint == null) {
 			return;
 		}
-		String msg = String.format("%s,%s", point.x - lastPoint.x, point.y - lastPoint.y);
+		String msg = String.format("%s,%s,", point.x - lastPoint.x, point.y - lastPoint.y);
 
 		byte[] buf = msg.getBytes();
 		DatagramPacket packet = new DatagramPacket(buf, buf.length, address, port);
