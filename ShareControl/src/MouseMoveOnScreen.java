@@ -44,7 +44,7 @@ public class MouseMoveOnScreen {
 				point = MouseInfo.getPointerInfo().getLocation();
 				if (controller && !point.equals(lastPoint)) {
 					sendLatestMouseMovement();
-					lastPoint = point;
+
 				}
 			}
 		};
@@ -86,8 +86,8 @@ public class MouseMoveOnScreen {
 						System.out.println("received: " + received);
 						String[] points = received.split(",");
 						
-						robot.mouseMove(500 + parseInt(points[0].trim()), 500 + parseInt(points[1].trim()));
-						robot.mouseMove(500, 500);
+						Point p = MouseInfo.getPointerInfo().getLocation();
+						robot.mouseMove(p.x + parseInt(points[0].trim()), p.y + parseInt(points[1].trim()));
 
 						if (received.equals("end")) {
 							running = false;
@@ -118,7 +118,7 @@ public class MouseMoveOnScreen {
 		if (lastPoint == null) {
 			return;
 		}
-		String msg = String.format("%s,%s,", point.x - lastPoint.x, point.y - lastPoint.y);
+		String msg = String.format("%s,%s,", point.x - 500, point.y - 500);
 
 		byte[] buf = msg.getBytes();
 		DatagramPacket packet = new DatagramPacket(buf, buf.length, address, port);
@@ -127,6 +127,8 @@ public class MouseMoveOnScreen {
 		} catch (IOException e) {
 			logger.log(Level.WARNING, e.toString(), e);
 		}
+		lastPoint = point;
+		robot.mouseMove(500, 500);
 	}
 
 	public static void main(String[] args) throws Exception {
