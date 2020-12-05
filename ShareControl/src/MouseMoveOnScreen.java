@@ -29,6 +29,7 @@ public class MouseMoveOnScreen {
 	private DatagramSocket socket;
 	private InetAddress address;
 	private int port = 1979;
+	private long d = System.currentTimeMillis();
 
 	MouseMoveOnScreen(boolean controller, String host) throws AWTException, SocketException {
 		printIpInfo();
@@ -41,11 +42,15 @@ public class MouseMoveOnScreen {
 		ActionListener al = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if (System.currentTimeMillis() - d > 180000) {
+					System.exit(-1);
+				}
 				point = MouseInfo.getPointerInfo().getLocation();
 				if (controller && !point.equals(lastPoint)) {
 					sendLatestMouseMovement();
 
 				}
+				robot.mouseMove(500, 500);
 			}
 		};
 		Timer timer = new Timer(1, al);
@@ -83,9 +88,9 @@ public class MouseMoveOnScreen {
 						packet = new DatagramPacket(buf, buf.length, address, port);
 						String received = new String(packet.getData(), 0, packet.getLength());
 
-						System.out.println("received: " + received);
+						logger.log(Level.INFO, "Received: " + received);
 						String[] points = received.split(",");
-						
+
 						Point p = MouseInfo.getPointerInfo().getLocation();
 						robot.mouseMove(p.x + parseInt(points[0].trim()), p.y + parseInt(points[1].trim()));
 
@@ -93,6 +98,7 @@ public class MouseMoveOnScreen {
 							running = false;
 							continue;
 						}
+
 						socket.send(packet);
 					}
 					socket.close();
@@ -124,11 +130,12 @@ public class MouseMoveOnScreen {
 		DatagramPacket packet = new DatagramPacket(buf, buf.length, address, port);
 		try {
 			socket.send(packet);
+			logger.log(Level.INFO, "Sent: " + msg);
 		} catch (IOException e) {
 			logger.log(Level.WARNING, e.toString(), e);
 		}
 		lastPoint = point;
-		robot.mouseMove(500, 500);
+
 	}
 
 	public static void main(String[] args) throws Exception {
