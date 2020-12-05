@@ -7,6 +7,8 @@ import java.awt.Point;
 import java.awt.Robot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -24,12 +26,17 @@ import javax.swing.Timer;
 
 public class MouseMoveOnScreen {
 	Logger logger = Logger.getAnonymousLogger();
-	Point point, lastPoint;
+
 	Robot robot;
+	String lastMsg;
 	private DatagramSocket socket;
 	private InetAddress address;
 	private int port = 1979;
 	private long d = System.currentTimeMillis();
+
+	static int released;
+
+	static int pressed;
 
 	MouseMoveOnScreen(boolean controller, String host) throws AWTException, SocketException {
 		printIpInfo();
@@ -45,11 +52,9 @@ public class MouseMoveOnScreen {
 				if (System.currentTimeMillis() - d > 180000) {
 					System.exit(-1);
 				}
-				point = MouseInfo.getPointerInfo().getLocation();
-				if (controller && !point.equals(lastPoint)) {
+
+				if (controller) {
 					sendLatestMouseMovement();
-					robot.mouseMove(500, 500);
-					lastPoint = point;
 				}
 			}
 		};
@@ -91,15 +96,22 @@ public class MouseMoveOnScreen {
 						logger.log(Level.INFO, "Received: " + received);
 						String[] points = received.split(",");
 
-						Point p = MouseInfo.getPointerInfo().getLocation();
-						robot.mouseMove(p.x + parseInt(points[0].trim()), p.y + parseInt(points[1].trim()));
+						if (points[0].equalsIgnoreCase("M")) {
+							Point p = MouseInfo.getPointerInfo().getLocation();
+							int x = p.x + parseInt(points[1].trim());
+							int y = p.y + parseInt(points[2].trim());
+							int pressed = parseInt(points[3]);
+							int released = parseInt(points[4]);
+							robot.mouseMove(x, y);
+							if (pressed >= 0) {
+								robot.mousePress(pressed);
+							}
+							if (released >= 0) {
+								robot.mouseRelease(released);
+							}
+						} else if (points[0].equalsIgnoreCase("K")) {
 
-						if (received.equals("end")) {
-							running = false;
-							continue;
 						}
-
-						socket.send(packet);
 					}
 					socket.close();
 				} catch (IOException e) {
@@ -121,20 +133,22 @@ public class MouseMoveOnScreen {
 	}
 
 	public void sendLatestMouseMovement() {
-		if (lastPoint == null) {
-			return;
-		}
-		String msg = String.format("%s,%s,", point.x - 500, point.y - 500);
+		Point point = MouseInfo.getPointerInfo().getLocation();
+		String msg = String.format("M,%s,%s,%s,%s", point.x - 500, point.y - 500, pressed, released);
 
-		byte[] buf = msg.getBytes();
-		DatagramPacket packet = new DatagramPacket(buf, buf.length, address, port);
-		try {
-			socket.send(packet);
-			logger.log(Level.INFO, "Sent: " + msg);
-		} catch (IOException e) {
-			logger.log(Level.WARNING, e.toString(), e);
+		if (!msg.equals(lastMsg)) {
+			byte[] buf = msg.getBytes();
+			DatagramPacket packet = new DatagramPacket(buf, buf.length, address, port);
+			try {
+				socket.send(packet);
+				logger.log(Level.INFO, "Sent: " + msg);
+			} catch (IOException e) {
+				logger.log(Level.WARNING, e.toString(), e);
+			}
+			robot.mouseMove(500, 500);
+			pressed = -1;
+			released = -1;
 		}
-
 
 	}
 
@@ -144,13 +158,49 @@ public class MouseMoveOnScreen {
 			@Override
 			public void run() {
 				JFrame f = new JFrame("Track Mouse On Screen");
+				f.addMouseListener(createMouseListener());
 				f.setBounds(100, 100, 100, 100);
 				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				// f.pack();
 				f.setLocationByPlatform(true);
 				f.setVisible(true);
 			}
+
+			private MouseListener createMouseListener() {
+				return new MouseListener() {
+
+					@Override
+					public void mousePressed(MouseEvent e) {
+						pressed = e.getButton();
+					}
+
+					@Override
+					public void mouseReleased(MouseEvent e) {
+						released = e.getButton();
+					}
+
+					@Override
+					public void mouseEntered(MouseEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void mouseExited(MouseEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void mouseClicked(MouseEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+				};
+
+			}
 		};
 		SwingUtilities.invokeLater(r);
 	}
+
 }
