@@ -148,6 +148,7 @@ public class MouseMoveOnScreen {
 			robot.mouseMove(500, 500);
 			pressed = -1;
 			released = -1;
+			lastMsg = msg;
 		}
 
 	}
