@@ -2,13 +2,17 @@
 import static java.lang.Integer.parseInt;
 
 import java.awt.AWTException;
+import java.awt.Cursor;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Robot;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -34,11 +38,14 @@ public class MouseMoveOnScreen {
 	private int port = 1979;
 	private long d = System.currentTimeMillis();
 
+	static boolean controller;
+
 	static int released;
 
 	static int pressed;
 
 	MouseMoveOnScreen(boolean controller, String host) throws AWTException, SocketException {
+		this.controller = controller;
 		printIpInfo();
 		if (controller) {
 			startController(host);
@@ -104,11 +111,12 @@ public class MouseMoveOnScreen {
 								int pressed = parseInt(points[3].trim());
 								int released = parseInt(points[4].trim());
 								robot.mouseMove(x, y);
-								if (pressed >= 0) {
-									robot.mousePress(pressed);
+								if (pressed > 0) {
+									robot.mousePress(pressed == 1 ? InputEvent.BUTTON1_MASK : InputEvent.BUTTON3_MASK);
 								}
-								if (released >= 0) {
-									robot.mouseRelease(released);
+								if (released > 0) {
+									robot.mouseRelease(
+											released == 1 ? InputEvent.BUTTON1_MASK : InputEvent.BUTTON3_MASK);
 								}
 							} else if (points[0].equalsIgnoreCase("K")) {
 
@@ -166,7 +174,15 @@ public class MouseMoveOnScreen {
 				f.addMouseListener(createMouseListener());
 				f.setBounds(400, 400, 200, 200);
 				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				f.setVisible(true);
+				if (controller) {
+					BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+					Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0),
+							"blank cursor");
+					f.getContentPane().setCursor(blankCursor);
+					f.setVisible(true);
+				} else {
+					f.setVisible(false);
+				}
 			}
 
 			private MouseListener createMouseListener() {
