@@ -48,9 +48,8 @@ public class MouseMoveOnScreen {
 				point = MouseInfo.getPointerInfo().getLocation();
 				if (controller && !point.equals(lastPoint)) {
 					sendLatestMouseMovement();
-
+					robot.mouseMove(500, 500);
 				}
-				robot.mouseMove(500, 500);
 			}
 		};
 		Timer timer = new Timer(1, al);
