@@ -49,6 +49,7 @@ public class MouseMoveOnScreen {
 				if (controller && !point.equals(lastPoint)) {
 					sendLatestMouseMovement();
 					robot.mouseMove(500, 500);
+					lastPoint = point;
 				}
 			}
 		};
@@ -133,7 +134,7 @@ public class MouseMoveOnScreen {
 		} catch (IOException e) {
 			logger.log(Level.WARNING, e.toString(), e);
 		}
-		lastPoint = point;
+
 
 	}
 
