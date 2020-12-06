@@ -169,8 +169,9 @@ public class MouseMoveOnScreen {
 	}
 
 	public static void main(String[] args) throws Exception {
-		multicastReceiver.start();
-
+		if (!controller) {
+			multicastReceiver.start();
+		}
 		new MouseMoveOnScreen(Boolean.parseBoolean(args[0]), args[1]);
 		Runnable r = new Runnable() {
 			@Override
