@@ -44,6 +44,9 @@ public class MouseMoveOnScreen {
 
 	static int pressed;
 
+	static MulticastPublisher multicastPublisher = new MulticastPublisher();
+	static MulticastReceiver multicastReceiver = new MulticastReceiver();
+
 	MouseMoveOnScreen(boolean controller, String host) throws AWTException, SocketException {
 		this.controller = controller;
 		printIpInfo();
@@ -166,8 +169,8 @@ public class MouseMoveOnScreen {
 	}
 
 	public static void main(String[] args) throws Exception {
-		broadcast("Hello", InetAddress.getByName("255.255.255.255"));
-		new MulticastReceiver().start();
+		multicastReceiver.start();
+
 		new MouseMoveOnScreen(Boolean.parseBoolean(args[0]), args[1]);
 		Runnable r = new Runnable() {
 			@Override
@@ -198,6 +201,12 @@ public class MouseMoveOnScreen {
 					@Override
 					public void mouseReleased(MouseEvent e) {
 						released = e.getButton();
+						try {
+							multicastPublisher.multicast("Hello!!!!");
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 					}
 
 					@Override
@@ -222,17 +231,6 @@ public class MouseMoveOnScreen {
 			}
 		};
 		SwingUtilities.invokeLater(r);
-	}
-
-	public static void broadcast(String broadcastMessage, InetAddress address) throws IOException {
-		DatagramSocket socket = new DatagramSocket();
-		socket.setBroadcast(true);
-
-		byte[] buffer = broadcastMessage.getBytes();
-
-		DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, 4445);
-		socket.send(packet);
-		socket.close();
 	}
 
 }
