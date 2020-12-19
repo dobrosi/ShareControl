@@ -1,8 +1,13 @@
 package com.github.dobrosi.sharecontrol.command;
 
+import java.awt.MouseInfo;
+import java.awt.Point;
+
 public class MousePointerCommand extends Command {
 	@Override
 	public void command() {
-		getRobot().mouseMove(trimAndParseInt((String) getArgs()[0]), trimAndParseInt((String) getArgs()[1]));
+		Point l = MouseInfo.getPointerInfo().getLocation();
+		getRobot().mouseMove(l.x + trimAndParseInt((String) getArgs()[0]),
+				l.y + trimAndParseInt((String) getArgs()[1]));
 	}
 }
