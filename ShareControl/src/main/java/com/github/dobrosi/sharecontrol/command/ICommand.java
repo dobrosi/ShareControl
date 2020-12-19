@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 public interface ICommand {
 	final CommandParameter messengerParameter = new CommandParameter();
 
-	public abstract void command();
+	public abstract void execute();
 
 	public abstract String getCommand();
 

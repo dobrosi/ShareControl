@@ -6,6 +6,7 @@ import java.awt.AWTException;
 import java.awt.Robot;
 import java.lang.reflect.InvocationTargetException;
 
+import com.github.dobrosi.sharecontrol.ShareControl;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 
@@ -28,11 +29,7 @@ public abstract class Command implements ICommand {
 	}
 
 	Robot getRobot() {
-		try {
-			return new Robot();
-		} catch (AWTException e) {
-			throw new RuntimeException(e);
-		}
+		return ShareControl.ROBOT;
 	}
 
 	public static <T extends ICommand> ICommand create(Class<T> c, Object... args) {
@@ -43,8 +40,13 @@ public abstract class Command implements ICommand {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	public ICommand withArgs(String[] args) {
+		this.args = args;
+		return this;
+	}
 
-	private ICommand withArgs(Object[] args) {
+	public ICommand withArgs(Object... args) {
 		this.args = args;
 		return this;
 	}

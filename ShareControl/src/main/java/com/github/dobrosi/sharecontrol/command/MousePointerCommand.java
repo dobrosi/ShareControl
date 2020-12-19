@@ -5,9 +5,9 @@ import java.awt.Point;
 
 public class MousePointerCommand extends Command {
 	@Override
-	public void command() {
+	public void execute() {
 		Point l = MouseInfo.getPointerInfo().getLocation();
-		getRobot().mouseMove(l.x + trimAndParseInt((String) getArgs()[0]),
-				l.y + trimAndParseInt((String) getArgs()[1]));
+		getRobot().mouseMove(l.x + trimAndParseInt((String) getArgs()[0].toString()),
+				l.y + trimAndParseInt((String) getArgs()[1].toString()));
 	}
 }

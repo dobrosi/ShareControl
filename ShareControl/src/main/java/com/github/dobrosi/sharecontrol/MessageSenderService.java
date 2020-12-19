@@ -21,10 +21,11 @@ public class MessageSenderService {
 
 	private InetAddress address;
 
-	private Point previousMousePointerLocation;
+	private Point defaultMousePointerLocation = new Point(150, 150);
 
 	public MessageSenderService(InetAddress address) {
 		this.address = address;
+		moveToDeafultLocation();
 	}
 
 	public void sendMessages(DatagramSocket socket) {
@@ -35,13 +36,15 @@ public class MessageSenderService {
 
 	private void addPointerCommand() {
 		Point l = MouseInfo.getPointerInfo().getLocation();
-		if (!l.equals(previousMousePointerLocation)) {
-			if (previousMousePointerLocation != null) {
-				addCommand(MousePointerCommand.class, l.x - previousMousePointerLocation.x,
-						l.y - previousMousePointerLocation.y);
-			}
-			previousMousePointerLocation = l;
+		if (!l.equals(defaultMousePointerLocation)) {
+			addCommand(MousePointerCommand.class, l.x - defaultMousePointerLocation.x,
+					l.y - defaultMousePointerLocation.y);
+			moveToDeafultLocation();
 		}
+	}
+
+	private void moveToDeafultLocation() {
+		ShareControl.ROBOT.mouseMove(defaultMousePointerLocation.x, defaultMousePointerLocation.y);
 	}
 
 	private void sendMessage(DatagramSocket socket, ICommand e) {
