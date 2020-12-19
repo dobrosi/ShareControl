@@ -3,6 +3,7 @@ package com.github.dobrosi.sharecontrol;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,6 +16,12 @@ public class MessageSenderService {
 
 	private Stack<ICommand> commands = new Stack<>();
 
+	private InetAddress address;
+	
+	public MessageSenderService (InetAddress address) {
+		this.address = address;
+	}
+
 	public void sendMessages(DatagramSocket socket) {
 		commands.forEach(e -> sendMessage(socket, e));
 		commands.clear();
@@ -26,7 +33,8 @@ public class MessageSenderService {
 
 	private void sendMessage(DatagramSocket socket, byte[] message) {
 		try {
-			socket.send(new DatagramPacket(message, message.length));
+			logger.log(Level.INFO, new String(message));
+			socket.send(new DatagramPacket(message, message.length, address, ShareControl.PORT));
 		} catch (IOException e) {
 			logger.log(Level.WARNING, e.toString(), e);
 		}

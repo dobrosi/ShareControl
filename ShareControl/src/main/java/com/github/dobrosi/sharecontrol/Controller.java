@@ -31,7 +31,7 @@ import com.github.dobrosi.sharecontrol.command.MouseWheelCommand;
 public class Controller {
 	private Logger logger = Logger.getAnonymousLogger();
 
-	private MessageSenderService messageSenderService = new MessageSenderService();
+	private MessageSenderService messageSenderService;
 
 	private DatagramSocket socket;
 
@@ -139,7 +139,8 @@ public class Controller {
 
 	private void startSocket(InetAddress address) {
 		try {
-			socket = new DatagramSocket(ShareControl.PORT, address);
+			messageSenderService = new MessageSenderService(address);
+			socket = new DatagramSocket(ShareControl.PORT);
 		} catch (SocketException e) {
 			logger.log(Level.WARNING, e.toString(), e);
 		}

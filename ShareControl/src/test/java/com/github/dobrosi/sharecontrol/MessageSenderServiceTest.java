@@ -29,7 +29,7 @@ public class MessageSenderServiceTest {
 
 	@BeforeEach
 	public void setUp() throws IOException {
-		s = new MessageSenderService();
+		s = new MessageSenderService(null);
 		socket = mock(DatagramSocket.class);
 	}
 

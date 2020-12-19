@@ -17,10 +17,8 @@ public class Receiver extends Thread {
 		try {
 			DatagramSocket socket = new DatagramSocket(ShareControl.PORT);
 			boolean running = true;
-			byte[] buf = new byte[1024];
-
 			while (running) {
-				messageReceiverService.receiveMessage(socket);
+				messageReceiverService.receiveMessage(socket).command();
 
 			}
 			socket.close();
